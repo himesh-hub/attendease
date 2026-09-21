@@ -11,16 +11,30 @@ class StudentList extends React.Component {
     }
 
     componentDidMount() {
-        this.getStudents();
+        this.loadStudents();
     }
 
-    getStudents = async () => {
-        const response = await fetch("http://localhost:5000/students");
-        const data = await response.json();
+    componentDidUpdate(prevProps) {
+        if (prevProps.refresh !== this.props.refresh) {
+            this.loadStudents();
+        }
+    }
 
-        this.setState({
-            students: data
-        });
+    loadStudents = async () => {
+        try {
+            const response = await fetch(
+                "http://localhost:5000/students"
+            );
+
+            const data = await response.json();
+
+            this.setState({
+                students: data
+            });
+
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     render() {
@@ -38,6 +52,7 @@ class StudentList extends React.Component {
                             rollNo={student.rollNo}
                             course={student.course}
                             present={student.present}
+                            onStudentChanged={this.props.onStudentChanged}
                         />
                     ))}
                 </div>

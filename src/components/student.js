@@ -2,6 +2,15 @@ import React from "react";
 
 class Student extends React.Component {
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      present: props.present,
+      deleted: false
+    };
+  }
+
   markPresent = async () => {
     await fetch(`http://localhost:5000/students/${this.props.id}`, {
       method: "PUT",
@@ -14,6 +23,9 @@ class Student extends React.Component {
     });
 
     console.log("Student is Present");
+    this.setState({
+      present: true
+    });
   };
 
   markAbsent = async () => {
@@ -28,64 +40,73 @@ class Student extends React.Component {
     });
 
     console.log("Student is Absent");
+    this.setState({
+      present: false
+    });
   };
 
   deleteStudent = async () => {
-  await fetch(`http://localhost:5000/students/${this.props.id}`, {
-    method: "DELETE"
-  });
+    await fetch(`http://localhost:5000/students/${this.props.id}`, {
+      method: "DELETE"
+    });
 
-  console.log("Student deleted");
-};
+    console.log("Student deleted");
+    this.setState({
+      deleted: true
+    });
+  };
 
   render() {
-  return (
-    <div className="student-card">
 
-      <div className="student-name">
-        {this.props.name}
-      </div>
+    if (this.state.deleted) {
+      return null;
+    }
 
-      <p className="student-info">
-        Roll No: {this.props.rollNo}
-      </p>
+    return (
+      <div className="student-card">
 
-      <p className="student-info">
-        Course: {this.props.course}
-      </p>
+        <div className="student-name">
+          {this.props.name}
+        </div>
 
-      <span
-        className={
-          this.props.present
-            ? "status present"
-            : "status absent"
-        }
-      >
-        {this.props.present ? "Present" : "Absent"}
-      </span>
+        <p className="student-info">
+          Roll No: {this.props.rollNo}
+        </p>
 
-      <div className="student-actions">
+        <p className="student-info">
+          Course: {this.props.course}
+        </p>
 
-        <button onClick={this.markPresent}>
-          Present
-        </button>
-
-        <button onClick={this.markAbsent}>
-          Absent
-        </button>
-
-        <button
-          className="delete-button"
-          onClick={this.deleteStudent}
+        <span
+          className={
+            this.state.present ? "status present" : "status absent"
+          }
         >
-          Delete
-        </button>
+          {this.state.present ? "Present" : "Absent"}
+        </span>
+
+        <div className="student-actions">
+
+          <button onClick={this.markPresent}>
+            Present
+          </button>
+
+          <button onClick={this.markAbsent}>
+            Absent
+          </button>
+
+          <button
+            className="delete-button"
+            onClick={this.deleteStudent}
+          >
+            Delete
+          </button>
+
+        </div>
 
       </div>
-
-    </div>
-  );
-}
+    );
+  }
 }
 
 export default Student;

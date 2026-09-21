@@ -47,17 +47,11 @@ class App extends React.Component {
           <div className="topbar">
             <div className="welcome">
               <h1>Welcome back 👋</h1>
-              <p>
-                Here's your student attendance overview
-              </p>
+              <p>Here's your student attendance overview</p>
             </div>
             <div className="top-actions">
-              <button className="icon-button">
-                🔔
-              </button>
-              <button className="icon-button">
-                ⚙
-              </button>
+              <button className="icon-button">🔔</button>
+              <button className="icon-button">⚙</button>
             </div>
           </div>
 
@@ -65,9 +59,8 @@ class App extends React.Component {
           <div className="add-card">
             <h2 className="section-title">Add New Student</h2>
 
-            <AddStudent
-              onStudentAdded={this.studentAdded}
-            />
+            <AddStudent onStudentAdded={this.studentAdded}/>
+            
 
           </div>
 
