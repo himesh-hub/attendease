@@ -38,13 +38,6 @@ class Home extends React.Component {
                 Get Started
               </button>
 
-              <button
-                className="secondary-button"
-                onClick={() => this.props.changePage("features")}
-              >
-                Explore Features
-              </button>
-
             </div>
 
           </div>
@@ -174,6 +167,13 @@ class Home extends React.Component {
             onClick={() => this.props.changePage("dashboard")}
           >
             Open Dashboard
+          </button>
+
+          <button
+            className="secondary-button"
+            onClick={() => this.props.changePage("about")}
+          >
+            About Us
           </button>
 
         </section>

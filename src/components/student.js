@@ -45,6 +45,18 @@ class Student extends React.Component {
     });
   };
 
+  viewProfile = () => {
+    const student = {
+      _id: this.props.id,
+      name: this.props.name,
+      rollNo: this.props.rollNo,
+      course: this.props.course,
+      present: this.state.present
+    };
+
+    this.props.onViewProfile(student);
+  };
+
   deleteStudent = async () => {
     await fetch(`http://localhost:5000/students/${this.props.id}`, {
       method: "DELETE"
@@ -54,6 +66,19 @@ class Student extends React.Component {
     this.setState({
       deleted: true
     });
+  };
+
+  editStudent = () => {
+
+    const student = {
+      _id: this.props.id,
+      name: this.props.name,
+      rollNo: this.props.rollNo,
+      course: this.props.course,
+      present: this.state.present
+    };
+
+    this.props.onEditStudent(student);
   };
 
   render() {
@@ -95,11 +120,19 @@ class Student extends React.Component {
             Absent
           </button>
 
+          <button onClick={this.viewProfile}>
+            View Student
+          </button>
+
           <button
             className="delete-button"
             onClick={this.deleteStudent}
           >
             Delete
+          </button>
+
+          <button onClick={this.editStudent}>
+            Edit
           </button>
 
         </div>

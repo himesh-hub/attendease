@@ -54,11 +54,27 @@ app.put("/students/:id", async (req, res) => {
     const { ObjectId } = require("mongodb");
 
     const id = req.params.id;
-    const present = req.body.present;
+    const updateData = {};
+
+    if (req.body.name !== undefined) {
+      updateData.name = req.body.name;
+    }
+
+    if (req.body.rollNo !== undefined) {
+      updateData.rollNo = Number(req.body.rollNo);
+    }
+
+    if (req.body.course !== undefined) {
+      updateData.course = req.body.course;
+    }
+
+    if (req.body.present !== undefined) {
+      updateData.present = req.body.present;
+    }
 
     await students.updateOne(
       { _id: new ObjectId(id) },
-      { $set: { present: present } }
+      { $set: updateData }
     );
 
     res.json({
@@ -97,3 +113,103 @@ app.listen(5000, () => {
   console.log("Server running on port 5000");
 });
 
+async function connectDB() {
+  try {
+    await client.connect();
+
+    console.log("MongoDB Atlas Connected Successfully");
+
+    const db = client.db("attendanceDB");
+
+    console.log("Database selected:", db.databaseName);
+
+    students = db.collection("students");
+
+    console.log("Students collection selected");
+
+    const studentsList = [
+      {
+        name: "Himesh",
+        rollNo: 101,
+        present: true,
+        attendancePercentage: 85.5,
+        subjects: ["MongoDB", "React"],
+        address: {
+          city: "Vadodara",
+          state: "Gujarat"
+        }
+      },
+      {
+        name: "Rahul",
+        rollNo: 102,
+        present: true,
+        attendancePercentage: 78.5,
+        subjects: ["MongoDB", "React"],
+        address: {
+          city: "Surat",
+          state: "Gujarat"
+        }
+      },
+      {
+        name: "Priya",
+        rollNo: 103,
+        present: false,
+        attendancePercentage: 92.0,
+        subjects: ["MongoDB", "React"],
+        address: {
+          city: "Ahmedabad",
+          state: "Gujarat"
+        }
+      },
+      {
+        name: "Amit",
+        rollNo: 104,
+        present: true,
+        attendancePercentage: 68.5,
+        subjects: ["MongoDB", "React"],
+        address: {
+          city: "Rajkot",
+          state: "Gujarat"
+        }
+      }
+    ];
+
+    for (const student of studentsList) {
+      const existingStudent = await students.findOne({
+        rollNo: student.rollNo
+      });
+
+      if (existingStudent) {
+        console.log(student.name + " already exists");
+      } else {
+        await students.insertOne(student);
+        console.log(student.name + " inserted successfully");
+      }
+    }
+
+    const studentsData = await students.find({}).toArray();
+
+    console.log("Students:");
+    console.log(studentsData);
+
+    const highAttendanceStudents = await students.find({
+      attendancePercentage: { $gt: 80 }
+    }).toArray();
+
+    console.log("Students with attendance above 80%:");
+    console.log(highAttendanceStudents);
+
+    const lowAttendanceStudents = await students.find({
+      attendancePercentage: { $lt: 80 }
+    }).toArray();
+
+    console.log("Students with attendance below 80%:");
+    console.log(lowAttendanceStudents);
+
+  } catch (error) {
+    console.log("MongoDB connection failed");
+    console.log(error);
+  }
+}
+
+connectDB();

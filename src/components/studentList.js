@@ -38,6 +38,58 @@ class StudentList extends React.Component {
     };
 
     render() {
+
+        let students = [...this.state.students];
+
+        /* Search */
+        if (this.props.search) {
+
+            const searchText =
+                this.props.search.toLowerCase();
+
+            students = students.filter((student) =>
+                student.name.toLowerCase().includes(searchText) ||
+                String(student.rollNo).includes(searchText)
+            );
+        }
+
+
+        /* Course Filter */
+        if (this.props.course !== "All") {
+
+            students = students.filter(
+                (student) =>
+                    student.course === this.props.course
+            );
+        }
+
+
+        /* Sort */
+        if (this.props.sort === "nameAsc") {
+
+            students.sort((a, b) =>
+                a.name.localeCompare(b.name)
+            );
+
+        } else if (this.props.sort === "nameDesc") {
+
+            students.sort((a, b) =>
+                b.name.localeCompare(a.name)
+            );
+
+        } else if (this.props.sort === "rollAsc") {
+
+            students.sort((a, b) =>
+                a.rollNo - b.rollNo
+            );
+
+        } else if (this.props.sort === "rollDesc") {
+
+            students.sort((a, b) =>
+                b.rollNo - a.rollNo
+            );
+        }
+
         return (
             <div>
                 <h2>Student List</h2>
@@ -53,6 +105,8 @@ class StudentList extends React.Component {
                             course={student.course}
                             present={student.present}
                             onStudentChanged={this.props.onStudentChanged}
+                            onViewProfile={this.props.onViewProfile}
+                            onEditStudent={this.props.onEditStudent}
                         />
                     ))}
                 </div>

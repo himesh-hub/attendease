@@ -1,7 +1,12 @@
 import React from "react";
-import Home from "./components/Home";
+import Navbar from "./components/navbar";
+import Home from "./components/home";
+import About from "./components/about";
 import StudentList from "./components/studentList";
 import AddStudent from "./components/addStudent";
+import StudentProfile from "./components/studentprofile";
+import Studentpage from "./components/studentpage";
+import EditStudent from "./components/editstudent";
 import "./App.css";
 
 class App extends React.Component {
@@ -10,9 +15,17 @@ class App extends React.Component {
 
     this.state = {
       refresh: 0,
-      page: "home"
+      page: "home",
+      selectedStudent: null
     };
   }
+
+  viewStudent = (student) => {
+    this.setState({
+      selectedStudent: student,
+      page: "profile"
+    });
+  };
 
   studentAdded = () => {
     this.setState({
@@ -26,6 +39,13 @@ class App extends React.Component {
     });
   };
 
+  editStudent = (student) => {
+    this.setState({
+      selectedStudent: student,
+      page: "editstudent"
+    });
+  };
+
   render() {
 
     return (
@@ -33,32 +53,50 @@ class App extends React.Component {
 
       <div className="app">
 
-        {/* Sidebar */}
-        <aside className="sidebar">
+        <Navbar changePage={this.changePage} />
 
-          <div className="logo">
-            Attend<span>Ease</span>
-          </div>
 
-          <div className="nav">
-            <div className="nav-item active"> Dashboard</div>
-          </div>
+        {/* Main Content */}
+        <main className="main">
 
-          <div className="sidebar-bottom">
-            <div className="nav-item"> Settings</div>
-          </div>
+          {
+            this.state.page === "home" && (
+              <Home changePage={this.changePage} />
+            )
+          }
 
-        </aside>
-        {
-          this.state.page === "home" && (
-            <Home changePage={this.changePage} />
-          )
-        }
+          {this.state.page === "about" && (
+            <About changePage={this.changePage} />
+          )}
 
-        {this.state.page === "dashboard" && (
-          <>
-            {/* Main Content */}
-            <main className="main">
+          {this.state.page === "profile" && (
+            <StudentProfile
+              student={this.state.selectedStudent}
+              changePage={this.changePage}
+            />
+          )}
+
+          {this.state.page === "students" && (
+            <Studentpage
+              changePage={this.changePage}
+              refresh={this.state.refresh}
+              onStudentAdded={this.studentAdded}
+              onStudentChanged={this.studentAdded}
+              onViewProfile={this.viewStudent}
+              onEditStudent={this.editStudent}
+            />
+          )}
+
+          {this.state.page === "editstudent" && (
+            <EditStudent
+              student={this.state.selectedStudent}
+              changePage={this.changePage}
+              onStudentUpdated={this.studentAdded}
+            />
+          )}
+
+          {this.state.page === "dashboard" && (
+            <>
               {/* Topbar */}
               <div className="topbar">
                 <div className="welcome">
@@ -87,10 +125,11 @@ class App extends React.Component {
 
               <StudentList
                 refresh={this.state.refresh}
+                onViewProfile={this.viewStudent}
               />
-            </main>
-          </>
-        )}
+            </>
+          )}
+        </main>
 
       </div>
     );
