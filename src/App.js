@@ -31,8 +31,6 @@ class App extends React.Component {
 
           <div className="nav">
             <div className="nav-item active"> Dashboard</div>
-            <div className="nav-item"> Students</div>
-            <div className="nav-item">Attendance</div>
           </div>
 
           <div className="sidebar-bottom">
