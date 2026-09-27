@@ -1,4 +1,7 @@
 import React from "react";
+import { Pencil } from 'lucide-react'
+import { Trash } from 'lucide-react'
+import { Eye } from 'lucide-react'
 
 class Student extends React.Component {
 
@@ -10,40 +13,6 @@ class Student extends React.Component {
       deleted: false
     };
   }
-
-  markPresent = async () => {
-    await fetch(`http://localhost:5000/students/${this.props.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        present: true
-      })
-    });
-
-    console.log("Student is Present");
-    this.setState({
-      present: true
-    });
-  };
-
-  markAbsent = async () => {
-    await fetch(`http://localhost:5000/students/${this.props.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        present: false
-      })
-    });
-
-    console.log("Student is Absent");
-    this.setState({
-      present: false
-    });
-  };
 
   viewProfile = () => {
     const student = {
@@ -102,37 +71,25 @@ class Student extends React.Component {
           Course: {this.props.course}
         </p>
 
-        <span
-          className={
-            this.state.present ? "status present" : "status absent"
-          }
-        >
-          {this.state.present ? "Present" : "Absent"}
-        </span>
-
         <div className="student-actions">
 
-          <button onClick={this.markPresent}>
-            Present
-          </button>
-
-          <button onClick={this.markAbsent}>
-            Absent
-          </button>
-
-          <button onClick={this.viewProfile}>
-            View Student
+          <button 
+          className="view-button"
+          onClick={this.viewProfile}>
+            <Eye size={20}/>
           </button>
 
           <button
             className="delete-button"
             onClick={this.deleteStudent}
           >
-            Delete
+            <Trash size={20}/>
           </button>
 
-          <button onClick={this.editStudent}>
-            Edit
+          <button
+          className="edit-button"
+           onClick={this.editStudent}>
+            <Pencil size={20}/>
           </button>
 
         </div>

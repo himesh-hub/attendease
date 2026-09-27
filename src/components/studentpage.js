@@ -14,24 +14,6 @@ class Studentpage extends React.Component {
     };
   }
 
-  handleSearch = (event) => {
-    this.setState({
-      search: event.target.value
-    });
-  };
-
-  handleCourse = (event) => {
-    this.setState({
-      course: event.target.value
-    });
-  };
-
-  handleSort = (event) => {
-    this.setState({
-      sort: event.target.value
-    });
-  };
-
   render() {
     return (
       <div className="students-page">
@@ -59,42 +41,6 @@ class Studentpage extends React.Component {
           </button>
 
         </div>
-
-
-        {/* Search / Filter / Sort */}
-        <div className="student-controls">
-
-          <input
-            type="text"
-            placeholder="Search student or roll number..."
-            value={this.state.search}
-            onChange={this.handleSearch}
-          />
-
-
-          <select
-            value={this.state.course}
-            onChange={this.handleCourse}
-          >
-            <option value="All">All Courses</option>
-            <option value="BCA">BCA</option>
-            <option value="MCA">MCA</option>
-            <option value="BBA">BBA</option>
-          </select>
-
-
-          <select
-            value={this.state.sort}
-            onChange={this.handleSort}
-          >
-            <option value="nameAsc">Name A-Z</option>
-            <option value="nameDesc">Name Z-A</option>
-            <option value="rollAsc">Roll Number Low-High</option>
-            <option value="rollDesc">Roll Number High-Low</option>
-          </select>
-
-        </div>
-
 
         {/* Add Student */}
         <section className="students-add-section">

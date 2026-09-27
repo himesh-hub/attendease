@@ -101,11 +101,65 @@ class App extends React.Component {
 
   render() {
 
-    if (!this.state.loggedIn) {
+    if (!this.state.loggedIn && this.state.page === "login") {
       return (
         <Login
           onLogin={this.handleLogin}
         />
+      );
+    }
+
+    if (!this.state.loggedIn) {
+      return (
+        <div className="public-site">
+
+          <div className="public-navbar">
+
+            <div
+              className="public-logo"
+              onClick={() => this.changePage("home")}
+            >
+              Attendance System
+            </div>
+
+            <div className="public-links">
+
+              <button
+                onClick={() => this.changePage("home")}
+              >
+                Home
+              </button>
+
+              <button
+                onClick={() => this.changePage("about")}
+              >
+                About
+              </button>
+
+              <button
+                className="public-login-button"
+                onClick={() => this.changePage("login")}
+              >
+                Login
+              </button>
+
+            </div>
+
+          </div>
+
+          {this.state.page === "home" && (
+            <Home
+              changePage={this.changePage}
+            />
+          )}
+
+          {this.state.page === "about" && (
+            <About
+              changePage={this.changePage}
+            />
+          )}
+
+        </div>
       );
     }
 

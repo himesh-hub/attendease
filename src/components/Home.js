@@ -33,7 +33,7 @@ class Home extends React.Component {
 
               <button
                 className="primary-button"
-                onClick={() => this.props.changePage("dashboard")}
+                onClick={() => this.props.changePage("login")}
               >
                 Get Started
               </button>
