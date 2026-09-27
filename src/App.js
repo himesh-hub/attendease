@@ -14,7 +14,7 @@ import Setting from "./components/setting";
 import Profile from "./components/profile";
 import Dashboard from "./components/dashboard";
 import Login from "./components/login";
-import StudentReport from "./components/studentreport";
+import StudentReport from "./components/studentreports";
 import "./App.css";
 
 class App extends React.Component {
@@ -36,14 +36,24 @@ class App extends React.Component {
       user: user,
       selectedStudent: user.role === "student"
         ? {
-          _id: user.studentId,
+          _id: String(user.studentId),
           name: user.studentName,
-          rollNo: user.rollNo
+          rollNo: user.rollNo,
+          course: user.course
         }
         : null,
       page: user.role === "teacher"
         ? "dashboard"
         : "studentreport"
+    });
+  };
+
+  handleLogout = () => {
+    this.setState({
+      loggedIn: false,
+      user: null,
+      selectedStudent: null,
+      page: "home"
     });
   };
 
@@ -61,6 +71,22 @@ class App extends React.Component {
   };
 
   changePage = (page) => {
+
+    // Student can access only student pages
+    if (
+      this.state.user &&
+      this.state.user.role === "student"
+    ) {
+      const allowedPages = [
+        "studentreport",
+        "profilepage"
+      ];
+
+      if (!allowedPages.includes(page)) {
+        return;
+      }
+    }
+
     this.setState({
       page: page
     });
@@ -88,7 +114,11 @@ class App extends React.Component {
 
       <div className="app">
 
-        <Navbar changePage={this.changePage} />
+        <Navbar
+          changePage={this.changePage}
+          user={this.state.user}
+          onLogout={this.handleLogout}
+        />
 
 
         {/* Main Content */}
@@ -169,12 +199,15 @@ class App extends React.Component {
           {this.state.page === "profilepage" && (
             <Profile
               changePage={this.changePage}
+              user={this.state.user}
+              student={this.state.selectedStudent}
             />
           )}
 
           {this.state.page === "studentreport" && (
             <StudentReport
               student={this.state.selectedStudent}
+              onLogout={this.handleLogout}
             />
           )}
 

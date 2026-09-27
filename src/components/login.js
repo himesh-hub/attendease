@@ -46,7 +46,11 @@ class Login extends React.Component {
             if (response.ok && data.success) {
                 this.props.onLogin({
                     role: data.role,
-                    username: this.state.username
+                    username: this.state.username,
+                    studentId: data.studentId,
+                    studentName: data.studentName,
+                    rollNo: data.rollNo,
+                    course: data.course
                 });
             } else {
                 this.setState({

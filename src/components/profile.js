@@ -4,11 +4,30 @@ class Profile extends React.Component {
   constructor(props) {
     super(props);
 
+    const isStudent =
+      props.user && props.user.role === "student";
+
     this.state = {
-      name: "Attendance Administrator",
-      email: "admin@example.com",
-      role: "Administrator",
-      department: "Computer Department",
+      name: isStudent
+        ? props.student.name
+        : "Attendance Administrator",
+
+      email: isStudent
+        ? "student@example.com"
+        : "admin@example.com",
+
+      role: isStudent
+        ? "Student / User"
+        : "Teacher / Administrator",
+
+      department: isStudent
+        ? props.student.course
+        : "Computer Department",
+
+      rollNo: isStudent
+        ? props.student.rollNo
+        : "",
+
       editing: false,
       message: ""
     };
@@ -41,17 +60,25 @@ class Profile extends React.Component {
   };
 
   render() {
+    const isStudent =
+      this.props.user &&
+      this.props.user.role === "student";
+
     return (
       <div className="profile-page">
 
         <section className="profile-page-header">
+
           <p className="page-tag">ACCOUNT</p>
 
           <h1>Profile</h1>
 
           <p>
-            Manage your application profile and account information.
+            {isStudent
+              ? "View your student account information."
+              : "Manage your administrator account information."}
           </p>
+
         </section>
 
         <section className="profile-account-card">
@@ -63,8 +90,15 @@ class Profile extends React.Component {
             </div>
 
             <div>
-              <h2>{this.state.name}</h2>
-              <p>{this.state.role}</p>
+
+              <h2>
+                {this.state.name}
+              </h2>
+
+              <p>
+                {this.state.role}
+              </p>
+
             </div>
 
           </div>
@@ -111,19 +145,53 @@ class Profile extends React.Component {
 
             </div>
 
-            <div className="profile-field">
+            {isStudent ? (
 
-              <label>Department</label>
+              <div className="profile-field">
 
-              <input
-                type="text"
-                name="department"
-                value={this.state.department}
-                onChange={this.handleChange}
-                disabled={!this.state.editing}
-              />
+                <label>Roll Number</label>
 
-            </div>
+                <input
+                  type="text"
+                  value={this.state.rollNo}
+                  disabled
+                />
+
+              </div>
+
+            ) : (
+
+              <div className="profile-field">
+
+                <label>Department</label>
+
+                <input
+                  type="text"
+                  name="department"
+                  value={this.state.department}
+                  onChange={this.handleChange}
+                  disabled={!this.state.editing}
+                />
+
+              </div>
+
+            )}
+
+            {isStudent && (
+
+              <div className="profile-field">
+
+                <label>Course</label>
+
+                <input
+                  type="text"
+                  value={this.state.department}
+                  disabled
+                />
+
+              </div>
+
+            )}
 
           </div>
 
@@ -143,11 +211,15 @@ class Profile extends React.Component {
 
             )}
 
-            <button
-              onClick={() => this.props.changePage("settings")}
-            >
-              Settings
-            </button>
+            {!isStudent && (
+              <button
+                onClick={() =>
+                  this.props.changePage("settings")
+                }
+              >
+                Settings
+              </button>
+            )}
 
           </div>
 

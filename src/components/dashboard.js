@@ -48,18 +48,33 @@ class Dashboard extends React.Component {
         fetch("http://localhost:5000/attendance/history")
       ]);
 
-      const students = await studentsResponse.json();
-      const subjects = await subjectsResponse.json();
-      const todayAttendance = await attendanceResponse.json();
-      const reports = await reportsResponse.json();
-      const history = await historyResponse.json();
+      const studentsData = await studentsResponse.json();
+      const subjectsData = await subjectsResponse.json();
+      const attendanceData = await attendanceResponse.json();
+      const reportsData = await reportsResponse.json();
+      const historyData = await historyResponse.json();
 
       this.setState({
-        students: students,
-        subjects: subjects,
-        todayAttendance: todayAttendance,
-        reports: reports,
-        history: history,
+        students: Array.isArray(studentsData)
+          ? studentsData
+          : [],
+
+        subjects: Array.isArray(subjectsData)
+          ? subjectsData
+          : [],
+
+        todayAttendance: Array.isArray(attendanceData)
+          ? attendanceData
+          : [],
+
+        reports: Array.isArray(reportsData)
+          ? reportsData
+          : [],
+
+        history: Array.isArray(historyData)
+          ? historyData
+          : [],
+
         loading: false
       });
 
@@ -72,24 +87,47 @@ class Dashboard extends React.Component {
     }
   };
 
+  getPresentToday = () => {
+    return this.state.todayAttendance.filter(
+      (record) => record.present === true
+    ).length;
+  };
+
+  getAbsentToday = () => {
+    return this.state.todayAttendance.filter(
+      (record) => record.present === false
+    ).length;
+  };
+
+  getNotMarkedToday = () => {
+    const totalStudents = this.state.students.length;
+    const markedStudents = this.state.todayAttendance.length;
+
+    return Math.max(
+      totalStudents - markedStudents,
+      0
+    );
+  };
+
   calculateTodayPercentage = () => {
-    const attendance = this.state.todayAttendance;
+    const attendance =
+      this.state.todayAttendance;
 
     if (attendance.length === 0) {
       return 0;
     }
 
-    const present = attendance.filter(
-      (record) => record.present === true
-    ).length;
+    const present = this.getPresentToday();
 
-    return (present / attendance.length) * 100;
+    return (
+      present / attendance.length
+    ) * 100;
   };
 
   calculateOverallPercentage = () => {
     const reports = this.state.reports;
 
-    if (reports.length === 0) {
+    if (!Array.isArray(reports) || reports.length === 0) {
       return 0;
     }
 
@@ -97,31 +135,54 @@ class Dashboard extends React.Component {
     let totalPresent = 0;
 
     reports.forEach((report) => {
-      totalClasses += report.totalClasses;
-      totalPresent += report.presentClasses;
+      totalClasses += Number(report.totalClasses) || 0;
+      totalPresent += Number(report.presentClasses) || 0;
     });
 
     if (totalClasses === 0) {
       return 0;
     }
 
-    return (totalPresent / totalClasses) * 100;
+    return (
+      totalPresent / totalClasses
+    ) * 100;
+  };
+
+  getLowAttendanceCount = () => {
+    return this.state.reports.filter(
+      (report) =>
+        Number(report.attendancePercentage) < 75
+    ).length;
   };
 
   render() {
+    if (this.state.loading) {
+      return (
+        <div className="dashboard-page">
+          <div className="dashboard-loading">
+            Loading Dashboard...
+          </div>
+        </div>
+      );
+    }
+
     const todayPercentage =
       this.calculateTodayPercentage();
 
     const overallPercentage =
       this.calculateOverallPercentage();
 
-    if (this.state.loading) {
-      return (
-        <div className="dashboard-page">
-          <h2>Loading Dashboard...</h2>
-        </div>
-      );
-    }
+    const presentToday =
+      this.getPresentToday();
+
+    const absentToday =
+      this.getAbsentToday();
+
+    const notMarkedToday =
+      this.getNotMarkedToday();
+
+    const lowAttendance =
+      this.getLowAttendanceCount();
 
     return (
       <div className="dashboard-page">
@@ -131,14 +192,28 @@ class Dashboard extends React.Component {
         <section className="dashboard-header">
 
           <div>
-            <p className="page-tag">OVERVIEW</p>
+            <p className="page-tag">
+              ADMIN OVERVIEW
+            </p>
 
-            <h1>Dashboard</h1>
+            <h1>
+              Dashboard
+            </h1>
 
             <p>
-              Welcome to the Student Attendance
-              Management & Analytics System.
+              Manage students, attendance, subjects
+              and academic reports from one place.
             </p>
+          </div>
+
+          <div className="dashboard-date">
+
+            <span>Today</span>
+
+            <strong>
+              {this.getToday()}
+            </strong>
+
           </div>
 
         </section>
@@ -156,7 +231,9 @@ class Dashboard extends React.Component {
               {this.state.students.length}
             </h2>
 
-            <span>Registered students</span>
+            <span>
+              Registered students
+            </span>
 
           </div>
 
@@ -169,21 +246,8 @@ class Dashboard extends React.Component {
               {this.state.subjects.length}
             </h2>
 
-            <span>Available subjects</span>
-
-          </div>
-
-
-          <div className="dashboard-card">
-
-            <p>Today's Attendance</p>
-
-            <h2>
-              {todayPercentage.toFixed(1)}%
-            </h2>
-
             <span>
-              {this.state.todayAttendance.length} records marked today
+              Available subjects
             </span>
 
           </div>
@@ -191,13 +255,176 @@ class Dashboard extends React.Component {
 
           <div className="dashboard-card">
 
-            <p>Overall Attendance</p>
+            <p>Present Today</p>
 
             <h2>
-              {overallPercentage.toFixed(1)}%
+              {presentToday}
             </h2>
 
-            <span>Based on recorded attendance</span>
+            <span>
+              Students marked present
+            </span>
+
+          </div>
+
+
+          <div className="dashboard-card">
+
+            <p>Absent Today</p>
+
+            <h2>
+              {absentToday}
+            </h2>
+
+            <span>
+              Students marked absent
+            </span>
+
+          </div>
+
+        </section>
+
+
+        {/* ATTENDANCE OVERVIEW */}
+
+        <section className="dashboard-section">
+
+          <div className="dashboard-section-header">
+
+            <div>
+              <p className="page-tag">
+                ATTENDANCE
+              </p>
+
+              <h2>
+                Attendance Overview
+              </h2>
+            </div>
+
+            <button
+              className="dashboard-link-button"
+              onClick={() =>
+                this.props.changePage("reports")
+              }
+            >
+              View Reports
+            </button>
+
+          </div>
+
+
+          <div className="attendance-overview-grid">
+
+            <div className="attendance-overview-card">
+
+              <div className="overview-card-top">
+
+                <span>
+                  Today's Attendance
+                </span>
+
+                <strong>
+                  {todayPercentage.toFixed(1)}%
+                </strong>
+
+              </div>
+
+              <div className="progress-bar">
+
+                <div
+                  className="progress-fill"
+                  style={{
+                    width:
+                      todayPercentage + "%"
+                  }}
+                ></div>
+
+              </div>
+
+              <p>
+                {presentToday} present /{" "}
+                {this.state.todayAttendance.length}{" "}
+                marked
+              </p>
+
+            </div>
+
+
+            <div className="attendance-overview-card">
+
+              <div className="overview-card-top">
+
+                <span>
+                  Overall Attendance
+                </span>
+
+                <strong>
+                  {overallPercentage.toFixed(1)}%
+                </strong>
+
+              </div>
+
+              <div className="progress-bar">
+
+                <div
+                  className="progress-fill"
+                  style={{
+                    width:
+                      overallPercentage + "%"
+                  }}
+                ></div>
+
+              </div>
+
+              <p>
+                Based on all recorded classes
+              </p>
+
+            </div>
+
+
+            <div className="attendance-overview-card">
+
+              <div className="overview-card-top">
+
+                <span>
+                  Need Attention
+                </span>
+
+                <strong>
+                  {lowAttendance}
+                </strong>
+
+              </div>
+
+              <p>
+                Student-subject records below
+                75% attendance
+              </p>
+
+            </div>
+
+
+            <div className="attendance-overview-card">
+
+              <div className="overview-card-top">
+
+                <span>
+                  Not Marked Today
+                </span>
+
+                <strong>
+                  {notMarkedToday}
+                </strong>
+
+              </div>
+
+              <p>
+                Students without an attendance
+                record today
+              </p>
+
+            </div>
 
           </div>
 
@@ -211,9 +438,15 @@ class Dashboard extends React.Component {
           <div className="dashboard-section-header">
 
             <div>
-              <p className="page-tag">ACTIONS</p>
 
-              <h2>Quick Actions</h2>
+              <p className="page-tag">
+                ACTIONS
+              </p>
+
+              <h2>
+                Quick Actions
+              </h2>
+
             </div>
 
           </div>
@@ -226,8 +459,13 @@ class Dashboard extends React.Component {
                 this.props.changePage("students")
               }
             >
-              <strong>Students</strong>
-              <span>Add or manage students</span>
+              <strong>
+                Manage Students
+              </strong>
+
+              <span>
+                Add, edit, search and view students
+              </span>
             </button>
 
 
@@ -236,8 +474,13 @@ class Dashboard extends React.Component {
                 this.props.changePage("subjects")
               }
             >
-              <strong>Subjects</strong>
-              <span>Manage academic subjects</span>
+              <strong>
+                Manage Subjects
+              </strong>
+
+              <span>
+                Add or remove academic subjects
+              </span>
             </button>
 
 
@@ -246,19 +489,114 @@ class Dashboard extends React.Component {
                 this.props.changePage("attendance")
               }
             >
-              <strong>Mark Attendance</strong>
-              <span>Record today's attendance</span>
+              <strong>
+                Mark Attendance
+              </strong>
+
+              <span>
+                Record today's attendance
+              </span>
             </button>
 
 
             <button
               onClick={() =>
-                this.props.changePage("reports")
+                this.props.changePage("history")
               }
             >
-              <strong>Reports</strong>
-              <span>View attendance analytics</span>
+              <strong>
+                Attendance History
+              </strong>
+
+              <span>
+                View previously recorded attendance
+              </span>
             </button>
+
+          </div>
+
+        </section>
+
+
+        {/* RECENT STUDENTS */}
+
+        <section className="dashboard-section">
+
+          <div className="dashboard-section-header">
+
+            <div>
+
+              <p className="page-tag">
+                STUDENTS
+              </p>
+
+              <h2>
+                Recent Students
+              </h2>
+
+            </div>
+
+            <button
+              className="dashboard-link-button"
+              onClick={() =>
+                this.props.changePage("students")
+              }
+            >
+              View All
+            </button>
+
+          </div>
+
+
+          <div className="dashboard-student-list">
+
+            {this.state.students.length === 0 ? (
+
+              <div className="dashboard-empty">
+                No students registered yet.
+              </div>
+
+            ) : (
+
+              this.state.students
+                .slice(-5)
+                .reverse()
+                .map((student) => (
+
+                  <div
+                    className="dashboard-student-card"
+                    key={student._id}
+                  >
+
+                    <div className="dashboard-student-avatar">
+
+                      {student.name
+                        .charAt(0)
+                        .toUpperCase()}
+
+                    </div>
+
+                    <div>
+
+                      <h3>
+                        {student.name}
+                      </h3>
+
+                      <p>
+                        Roll No: {student.rollNo}
+                      </p>
+
+                    </div>
+
+                    <span>
+                      {student.course}
+                    </span>
+
+                  </div>
+
+                ))
+
+            )}
 
           </div>
 
@@ -272,9 +610,15 @@ class Dashboard extends React.Component {
           <div className="dashboard-section-header">
 
             <div>
-              <p className="page-tag">RECENT</p>
 
-              <h2>Recent Attendance</h2>
+              <p className="page-tag">
+                RECENT
+              </p>
+
+              <h2>
+                Recent Attendance
+              </h2>
+
             </div>
 
             <button
@@ -365,63 +709,6 @@ class Dashboard extends React.Component {
               </tbody>
 
             </table>
-
-          </div>
-
-        </section>
-
-
-        {/* SYSTEM OVERVIEW */}
-
-        <section className="dashboard-section">
-
-          <div className="dashboard-section-header">
-
-            <div>
-              <p className="page-tag">SYSTEM</p>
-
-              <h2>System Overview</h2>
-            </div>
-
-          </div>
-
-
-          <div className="dashboard-overview">
-
-            <div>
-              <h3>Students</h3>
-              <p>
-                Manage student records, search students,
-                edit information and view student profiles.
-              </p>
-            </div>
-
-
-            <div>
-              <h3>Subjects</h3>
-              <p>
-                Create and manage the subjects used for
-                attendance recording.
-              </p>
-            </div>
-
-
-            <div>
-              <h3>Attendance</h3>
-              <p>
-                Mark daily student attendance and store
-                attendance records in MongoDB.
-              </p>
-            </div>
-
-
-            <div>
-              <h3>Analytics</h3>
-              <p>
-                Generate attendance history, percentages,
-                reports and notifications.
-              </p>
-            </div>
 
           </div>
 

@@ -24,6 +24,7 @@ app.post("/login", async (req, res) => {
   try {
     const { username, password, role } = req.body;
 
+    // TEACHER LOGIN
     if (role === "teacher") {
       if (
         username === process.env.TEACHER_USERNAME &&
@@ -38,6 +39,37 @@ app.post("/login", async (req, res) => {
         res.status(401).json({
           success: false,
           message: "Invalid teacher username or password"
+        });
+      }
+
+      return;
+    }
+
+    // STUDENT LOGIN
+    if (role === "student") {
+      const rollNo = Number(username);
+
+      const student = await students.findOne({
+        rollNo: rollNo
+      });
+
+      if (
+        student &&
+        password === "student@" + rollNo
+      ) {
+        res.json({
+          success: true,
+          role: "student",
+          studentId: student._id.toString(),
+          studentName: student.name,
+          rollNo: student.rollNo,
+          course: student.course,
+          message: "Student login successful"
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message: "Invalid student roll number or password"
         });
       }
 
@@ -61,7 +93,15 @@ app.post("/login", async (req, res) => {
 
 app.get("/student-report/:id", async (req, res) => {
   try {
-    const studentId = new ObjectId(req.params.id);
+    const id = req.params.id;
+
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({
+        message: "Invalid student ID"
+      });
+    }
+
+    const studentId = new ObjectId(id);
 
     const report = await attendance.aggregate([
       {
