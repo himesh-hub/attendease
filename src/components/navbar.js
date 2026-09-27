@@ -33,18 +33,56 @@ class Navbar extends React.Component {
                         Contact
                     </button>
 
+
                     <button
-                        onClick={() => this.props.changePage("dashboard")}
+                        onClick={() => this.props.changePage("subjects")}
                     >
-                        Dashboard
+                        Subjects
                     </button>
-                    
+
+                    <button
+                        onClick={() => this.props.changePage("attendance")}
+                    >
+                        Attendance
+                    </button>
+
+                    <button onClick={() => this.props.changePage("history")}>
+                        History
+                    </button>
+
+                    <button onClick={() => this.props.changePage("reports")}>
+                        Reports
+                    </button>
+
+                    <button
+                        onClick={() => this.props.changePage("notifications")}
+                    >
+                        Notifications
+                    </button>
+
+                    <button
+                        onClick={() => this.props.changePage("settings")}
+                    >
+                        Settings
+                    </button>
+
+                    <button
+                        onClick={() => this.props.changePage("profilepage")}
+                    >
+                        Profile
+                    </button>
+
                     <button
                         onClick={() => this.props.changePage("students")}
                     >
                         Students
                     </button>
 
+                    <button
+                        onClick={() => this.props.changePage("dashboard")}
+                    >
+                        Dashboard
+                    </button>
                 </div>
 
             </nav>
